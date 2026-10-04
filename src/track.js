@@ -270,9 +270,32 @@ class Track {
       if (img) {
         const sc = d.size / Math.max(img.width, img.height);
         g.drawImage(img, -img.width * sc / 2, -img.height * sc / 2, img.width * sc, img.height * sc);
+      } else if (d.kind === 'boost') {
+        // three yellow chevrons pointing along the track
+        for (let k = 0; k < 3; k++) {
+          const y = 6 - k * 6;
+          g.fillStyle = '#000';
+          g.beginPath(); g.moveTo(-9, y + 4); g.lineTo(0, y - 4); g.lineTo(9, y + 4); g.lineTo(9, y + 8); g.lineTo(0, y); g.lineTo(-9, y + 8); g.fill();
+          g.fillStyle = k === 1 ? '#fcfcfc' : '#f8b800';
+          g.beginPath(); g.moveTo(-8, y + 3); g.lineTo(0, y - 3); g.lineTo(8, y + 3); g.lineTo(8, y + 6); g.lineTo(0, y); g.lineTo(-8, y + 6); g.fill();
+        }
       } else {
-        g.fillStyle = d.kind === 'oil' ? '#101010' : d.kind === 'puddle' ? '#3878f8' : '#f8d800';
-        g.beginPath(); g.ellipse(0, 0, d.size / 2, d.size / 3, 0, 0, TAU); g.fill();
+        // irregular blob: oil (black, glossy) or puddle (blue, rippled)
+        const oil = d.kind === 'oil', r = d.size / 2;
+        const blob = (scale) => {
+          g.beginPath();
+          for (let k = 0; k <= 12; k++) {
+            const a = (k / 12) * TAU, rr = r * scale * (0.75 + 0.25 * Math.sin(a * 3 + d.size) * Math.cos(a * 2));
+            k ? g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr * 0.8) : g.moveTo(Math.cos(a) * rr, Math.sin(a) * rr * 0.8);
+          }
+          g.fill();
+        };
+        g.fillStyle = oil ? '#000000' : '#0058f8'; blob(1);
+        g.fillStyle = oil ? '#181818' : '#3cbcfc'; blob(0.7);
+        g.fillStyle = oil ? '#4428bc' : '#a4e4fc';
+        g.fillRect(-r * 0.35, -r * 0.3, r * 0.3, 2);
+        g.fillStyle = oil ? '#7c7c7c' : '#fcfcfc';
+        g.fillRect(r * 0.1, r * 0.15, 3, 2);
       }
       g.restore();
     };

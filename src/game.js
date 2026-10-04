@@ -231,6 +231,7 @@ class Game {
 
   drawTitle(g) {
     this.drawBackdrop(g, 0.25);
+    g.fillStyle = 'rgba(0,0,0,0.45)'; g.fillRect(0, 28, VW, 72);
     this.drawLogo(g, 40);
     Font.draw(g, 'A RADIO CONTROLLED RACING TRIBUTE', VW / 2, 86, { align: 'center', color: '#fcfcfc' });
     const items = ['1 PLAYER', '2 PLAYERS', 'CONTROLS'];

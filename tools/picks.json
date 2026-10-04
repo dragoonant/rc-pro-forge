@@ -1,0 +1,57 @@
+{
+  "tex_grass": [
+    0,
+    "detail=10"
+  ],
+  "tex_dirt": [
+    0,
+    "detail=14"
+  ],
+  "tex_asphalt": [
+    0,
+    "detail=10"
+  ],
+  "tex_sand": 2,
+  "tex_water": 0,
+  "tex_snow": [
+    1,
+    "detail=12"
+  ],
+  "tex_ice": [
+    2,
+    "detail=12"
+  ],
+  "tex_concrete": [
+    1,
+    "detail=10"
+  ],
+  "tex_rubber": 0,
+  "car_buggy": [
+    3,
+    "flip"
+  ],
+  "car_formula": [
+    3,
+    "flip"
+  ],
+  "missile": "old",
+  "bush": 3,
+  "haybale": 3,
+  "rock": 3,
+  "tree_oak": 3,
+  "tree_palm": 3,
+  "tree_pine": 3,
+  "barrel": 3,
+  "bomb": 3,
+  "cloud": 2,
+  "cone": 3,
+  "icon_battery": 3,
+  "icon_engine": 3,
+  "icon_tire": 3,
+  "tirestack": 3,
+  "title_art": 4,
+  "trophy": [
+    2,
+    "nogrey"
+  ]
+}

@@ -336,8 +336,9 @@ class Race {
     // camera leads in the direction of travel
     const tx = T.sx(car.x, car.y) + (car.vx - car.vy) * 0.32;
     const ty = T.sy(car.x, car.y) + (car.vx + car.vy) * 0.16;
-    car.cam.x = lerp(car.cam.x, tx, clamp(5 * dt, 0, 1));
-    car.cam.y = lerp(car.cam.y, ty, clamp(5 * dt, 0, 1));
+    const far = Math.abs(car.cam.x - tx) > 260 || Math.abs(car.cam.y - ty) > 160;
+    car.cam.x = far ? tx : lerp(car.cam.x, tx, clamp(5 * dt, 0, 1));
+    car.cam.y = far ? ty : lerp(car.cam.y, ty, clamp(5 * dt, 0, 1));
     const left = Math.round(clamp(car.cam.x - vw / 2, 0, T.W - vw));
     const top = Math.round(clamp(car.cam.y - vh / 2, 0, T.H - vh));
     const ox = vx - left, oy = vy - top;

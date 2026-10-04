@@ -29,12 +29,12 @@ SPECS = {
     "tex_grass": ("tex", 64), "tex_dirt": ("tex", 64), "tex_asphalt": ("tex", 64), "tex_sand": ("tex", 64),
     "tex_water": ("tex", 64), "tex_snow": ("tex", 64), "tex_ice": ("tex", 64), "tex_concrete": ("tex", 64),
     "tex_rubber": ("tex", 64),
-    "car_buggy": ("car", 14, 22, True), "car_formula": ("car", 14, 24, True),
-    "oil": ("spr", 32, 32, False), "puddle": ("spr", 36, 36, False), "missile": ("spr", 6, 14, True),
+    "car_buggy": ("car", 19, 24, True), "car_formula": ("car", 15, 26, True),
+    "missile": ("spr", 6, 14, True),
     "tree_oak": ("spr", 48, 52, True), "bush": ("spr", 22, 20, True), "haybale": ("spr", 22, 20, True),
-    "tree_palm": ("spr", 44, 60, True), "rock": ("spr", 24, 22, True), "umbrella": ("spr", 34, 36, True),
+    "tree_palm": ("spr", 44, 60, True), "rock": ("spr", 24, 22, True),
     "tree_pine": ("spr", 34, 56, True), "snowman": ("spr", 22, 30, True), "cone": ("spr", 12, 14, True),
-    "barrel": ("spr", 16, 20, True), "tirestack": ("spr", 20, 22, True), "lamp": ("spr", 18, 56, True),
+    "barrel": ("spr", 16, 20, True), "tirestack": ("spr", 20, 22, True),
     "cloud": ("spr", 64, 48, True), "bomb": ("spr", 12, 12, True),
     "icon_engine": ("spr", 16, 16, True), "icon_tire": ("spr", 16, 16, True), "icon_battery": ("spr", 16, 16, True),
     "trophy": ("spr", 56, 64, True),
@@ -51,6 +51,21 @@ def nes_quantize(rgb):
     pal = PAL * w
     d = ((flat[:, None, :] - pal[None, :, :]) ** 2).sum(-1)
     return PAL[d.argmin(1)].reshape(rgb.shape)
+
+
+def quantize(rgb, alpha=None, k=12):
+    """Adaptive k-color palette (median cut, no dither) computed from opaque pixels only."""
+    H, W, _ = rgb.shape
+    mask = np.ones((H, W), bool) if alpha is None else alpha
+    px = np.clip(rgb[mask], 0, 255).astype(np.uint8)
+    if len(px) == 0:
+        return rgb
+    strip = Image.fromarray(px.reshape(1, -1, 3), "RGB")
+    pal_img = strip.quantize(colors=k, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+    pal = np.array(pal_img.getpalette()[:k * 3], dtype=np.float32).reshape(-1, 3)
+    flat = rgb.reshape(-1, 3)
+    idx = ((flat[:, None, :] - pal[None]) ** 2).sum(-1).argmin(1)
+    return pal[idx].reshape(rgb.shape)
 
 
 def pick(name):
@@ -70,7 +85,7 @@ def key_background(im):
     edge_labels = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}
     bgmask = np.isin(lab, list(edge_labels))
     fg = ~bgmask
-    fg = ndimage.binary_opening(fg, iterations=2)
+    fg = ndimage.binary_opening(fg, iterations=1)
     fg = ndimage.binary_erosion(fg, iterations=2)
     # keep main blobs only
     lab2, n = ndimage.label(fg)
@@ -128,6 +143,9 @@ def hue_shift(rgb, alpha, hue):
             h, s, v = colorsys.rgb_to_hsv(r, g, b)
             if s > 0.35 and v > 0.2:
                 out[y, x] = np.array(colorsys.hsv_to_rgb((h + hue) % 1, s, v)) * 255
+            elif 0.28 < v < 0.9:
+                # paint grey chassis panels in the car color so teams read at a glance
+                out[y, x] = np.array(colorsys.hsv_to_rgb(hue % 1, 0.8, min(1, max(v * 1.35, 0.6)))) * 255
     return out
 
 
@@ -148,22 +166,26 @@ def process(name):
         mean = rgb.mean(axis=(0, 1), keepdims=True)
         std = float(np.sqrt(((rgb - mean) ** 2).mean())) + 1e-3
         rgb = np.clip(mean + (rgb - mean) * (float(next((o[7:] for o in opts if o.startswith("detail=")), 16)) / std), 0, 255)
-        save_rgba(nes_quantize(rgb), np.ones((size, size), bool), name)
+        save_rgba(quantize(rgb, k=6), np.ones((size, size), bool), name)
         return [name]
     if kind == "art":
         rgb = np.asarray(im.resize((spec[1], spec[2]), Image.BOX), dtype=np.float32)
-        save_rgba(nes_quantize(boost_contrast(rgb, 1.1)), np.ones((spec[2], spec[1]), bool), name)
+        save_rgba(quantize(boost_contrast(rgb, 1.1), k=32), np.ones((spec[2], spec[1]), bool), name)
         return [name]
     _, mw, mh, outline = spec
     rgb, fg = key_background(im)
+    if "nogrey" in opts:  # strip soft grey drop shadows
+        mx, mn = rgb.max(-1), rgb.min(-1)
+        grey = ((mx - mn) < 28) & (mx > 120)
+        fg = ndimage.binary_opening(fg & ~grey, iterations=2)
     rgb, alpha = fit_downscale(rgb, fg, mw, mh)
-    rgb = nes_quantize(boost_contrast(rgb))
+    rgb = quantize(boost_contrast(rgb), alpha, k=10 if kind == "car" else 12)
     if outline:
         rgb, alpha = add_outline(rgb, alpha)
     if kind == "car":
         names = []
         for cname, hue in CAR_HUES.items():
-            v = nes_quantize(hue_shift(rgb, alpha, hue)) if hue else rgb
+            v = hue_shift(rgb, alpha, hue)
             save_rgba(v, alpha, f"{name}_{cname}")
             names.append(f"{name}_{cname}")
         return names

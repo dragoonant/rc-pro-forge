@@ -6,25 +6,25 @@ const THEMES = {
   backyard: {
     outer: 'tex_grass', apron: 'tex_grass', road: 'tex_dirt', apronW: 400,
     wallA: '#e8e8e8', wallB: '#d82800', wallTop: '#fcfcfc', curbA: '#fcfcfc', curbB: '#d82800',
-    props: [['tree_oak', 3], ['bush', 4], ['haybale', 2]], propDensity: 0.55,
+    props: [['tree_oak', 3], ['bush', 4], ['haybale', 2]], propDensity: 0.28,
     grip: 1, mood: 'major', fallback: { outer: '#3c8c28', apron: '#3c8c28', road: '#9c6c3c' },
   },
   beach: {
     outer: 'tex_water', apron: 'tex_sand', road: 'tex_asphalt', apronW: 150,
     wallA: '#fcfcfc', wallB: '#0078f8', wallTop: '#fcfcfc', curbA: '#fcfcfc', curbB: '#f8b800',
-    props: [['tree_palm', 4], ['umbrella', 2], ['rock', 2]], propDensity: 0.5, propsOnApronOnly: true,
+    props: [['tree_palm', 5], ['rock', 2], ['bush', 1]], propDensity: 0.22, propsOnApronOnly: true,
     grip: 1, mood: 'mixo', fallback: { outer: '#2878f8', apron: '#f0d088', road: '#585858' },
   },
   snow: {
     outer: 'tex_snow', apron: 'tex_snow', road: 'tex_ice', apronW: 400,
     wallA: '#fcfcfc', wallB: '#3cbcfc', wallTop: '#fcfcfc', curbA: '#fcfcfc', curbB: '#0058f8',
-    props: [['tree_pine', 5], ['snowman', 1], ['rock', 1]], propDensity: 0.5,
+    props: [['tree_pine', 6], ['rock', 1]], propDensity: 0.3,
     grip: 0.62, mood: 'minor', fallback: { outer: '#f0f0f8', apron: '#f0f0f8', road: '#a8d8f8' },
   },
   industrial: {
     outer: 'tex_rubber', apron: 'tex_concrete', road: 'tex_asphalt', apronW: 160,
     wallA: '#f8b800', wallB: '#181818', wallTop: '#fcfcfc', curbA: '#f8b800', curbB: '#181818',
-    props: [['barrel', 3], ['tirestack', 3], ['cone', 2], ['lamp', 1]], propDensity: 0.45, propsOnApronOnly: true,
+    props: [['barrel', 3], ['tirestack', 3], ['cone', 2]], propDensity: 0.25, propsOnApronOnly: true,
     grip: 1, mood: 'dorian', fallback: { outer: '#484848', apron: '#a0a0a0', road: '#404040' },
   },
 };
