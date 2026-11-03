@@ -54,7 +54,7 @@ JOBS = {
     "rock": spr("grey boulder rock"),
     "umbrella": spr("red and white striped beach umbrella"),
     "tree_pine": spr("snowy green pine tree", bg="black", seeds=6),
-    "snowman": spr("cute snowman with red scarf and top hat", bg="black"),
+    "snowman": spr("round snowman with red scarf and top hat", bg="black"),
     "cone": spr("orange traffic cone"),
     "barrel": spr("red oil drum barrel"),
     "tirestack": spr("stack of three black car tires"),
